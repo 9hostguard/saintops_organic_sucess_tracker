@@ -1,0 +1,29 @@
+name: Weekly Report
+on:
+  schedule:
+    - cron: '0 7 * * 1'
+  workflow_dispatch:
+jobs:
+  generate-report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      - name: Install dependencies
+        run: |
+          cd saintops-tracker
+          pip install -r requirements.txt
+      - name: Generate weekly report
+        run: |
+          cd saintops-tracker
+          python generate_weekly_report.py
+      - name: Commit report
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          git add progress_log.md
+          git commit -m "Update weekly progress log" || echo "No changes to commit"
+          git push
